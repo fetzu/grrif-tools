@@ -35,8 +35,11 @@ if arguments['-s'] is True:
             date DATE NOT NULL,
             time TIME NOT NULL,
             artist TEXT NOT NULL,
-            title TEXT NOT NULL
-        )''')
+            title TEXT NOT NULL,
+            CONSTRAINT unique_play UNIQUE (date, time)
+            );
+        ''')
+
         conn.commit()
     else:
         conn = sqlite3.connect('grrif_data.db')
@@ -89,8 +92,13 @@ while current_date <= end_date:
 
         # Save into the database
         if arguments['-s'] is True:
-            c.execute('INSERT INTO plays (date, time, artist, title) VALUES (?, ?, ?, ?)', (current_date.strftime('%Y-%m-%d'), time, pretty_artist, pretty_title))
-            conn.commit()
+            # Make sure that the entries are not already present
+            try:
+                c.execute('INSERT INTO plays (date, time, artist, title) VALUES (?, ?, ?, ?)', (current_date.strftime('%Y-%m-%d'), time, pretty_artist, pretty_title))
+                conn.commit()
+            except sqlite3.IntegrityError:
+                #print("Error: row already exists")
+                continue
 
     # Move to the next day
     current_date += timedelta(days=1)
