@@ -5,7 +5,7 @@ import argparse
 from datetime import date, datetime
 
 ## [ CONFIGURATION ]
-__version__ = "0.5.2"
+__version__ = "0.5.3"
 
 ## [ Is CLI even cooler with argparse? ]
 parser = argparse.ArgumentParser(

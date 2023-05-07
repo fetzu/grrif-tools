@@ -1,12 +1,17 @@
+import os
 from setuptools import setup, find_packages
+
+with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 setup(
     name="grrif_tools",
     description="An unofficial set of tools for Cool Cats™.",
-    long_description="A set of tools for Cool Cats™. Allows you to archive GRRIF's play history to a SQLite database or text files, and maybe more...",
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     author="Julien 'fetzu' Bono", 
     url="https://fetzu.ch/",
-    version="0.5.2",
+    version="0.5.3",
     download_url="https://github.com/fetzu/grrif_tools",
     packages=find_packages(include=['grrif_tools','grrif_tools.*']),
     license="License :: OSI Approved :: MIT License",
