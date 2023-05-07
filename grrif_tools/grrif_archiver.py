@@ -110,7 +110,7 @@ def write_to_db(base_url, start_date, end_date, database_path):
             except sqlite3.IntegrityError:
                 # print("Error: row already exists")
                 continue
-        
+
         # Wait 2 seconds before moving on
         time.sleep(2)
 
