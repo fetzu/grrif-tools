@@ -11,6 +11,7 @@ Usage: grrif-archiver.py [-pst]
 """
 
 ## [ IMPORTS ]
+import os
 import requests
 import titlecase
 from datetime import timedelta, date
@@ -21,10 +22,25 @@ from docopt import docopt
 if __name__ == '__main__':
     arguments = docopt(__doc__)
 
-# If argument -s was used, import sqlite3 and open the db
+# If argument -s was used, import sqlite3 and create/open the db
 if arguments['-s'] is True:
     import sqlite3
-    conn = sqlite3.connect('grrif_data.db')
+
+    # Create an emtpy db if it does not exist yet
+    if not os.path.isfile('grrif_data.db'):
+        # Create the 'plays' table
+        conn = sqlite3.connect('grrif_data.db')
+        conn.execute('''CREATE TABLE plays (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date DATE NOT NULL,
+            time TIME NOT NULL,
+            artist TEXT NOT NULL,
+            title TEXT NOT NULL
+        )''')
+        conn.commit()
+    else:
+        conn = sqlite3.connect('grrif_data.db')
+    
     c = conn.cursor()
 
 ## [ CONFIGURATION ]
