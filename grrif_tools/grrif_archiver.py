@@ -1,14 +1,20 @@
-### [ GRRIF Archiver || Made by Julien 'fetzu' Bono || Scrapes and saves GRRIF's "recently played" items. ]
+'''
+GRRIF Archiver helper functions
+'''
 
 ## [ IMPORTS ]
+from datetime import timedelta
 import os
+import sqlite3
 import requests
 import titlecase
-from datetime import timedelta
 from bs4 import BeautifulSoup
-import sqlite3
 
 def plays_to_db(BASE_URL, START_DATE, END_DATE):
+    '''
+    Scrapes the BASE_URL and adds the plays between START_DATE
+    and END_DATE to a SQLite database
+    '''
     database_path = database_handler()
     write_to_db(BASE_URL, START_DATE, END_DATE, database_path)
 
@@ -18,7 +24,7 @@ def database_handler():
     with a "plays" table containing the plays exists,
     create it if it doesn't...
     '''
-    database_path = os.path.join(os.path.abspath(os.getcwd()), "data", "grrif_data.db")
+    database_path = os.path.join(os.path.expanduser("~"), "grrif_data", "grrif_data.db")
 
     # Creates the ../data/ directory if it does not exist yet
     if not os.path.isdir(os.path.dirname(database_path)):
@@ -97,14 +103,17 @@ def write_to_db(base_url, start_date, end_date, database_path):
     # When all is over, close the connection to the DB
     conn.close()
 
+    # Print a success message
+    print(f"Data archived to {database_path} successfully !")
+
 def plays_to_txt(base_url, start_date, end_date):
     '''
     Function to scrape the website between start_date and end_date
     and write all the plays to text files in a YYYY/MM/DD.txt structure
     '''
     # Set the path for the files and creates the ../data/plays directory if it does not exist yet
-    plays_path = os.path.join(os.path.abspath(os.getcwd()), "data", "plays")
-    os.makedirs(os.path.join(os.path.abspath(os.getcwd()), "data", "plays"), exist_ok=True)
+    plays_path = os.path.join(os.path.expanduser("~"), "grrif_data", "plays")
+    os.makedirs(os.path.join(os.path.expanduser("~"), "grrif_data", "plays"), exist_ok=True)
 
     current_date = start_date
     while current_date <= end_date:
@@ -147,6 +156,9 @@ def plays_to_txt(base_url, start_date, end_date):
         # Move to the next day
         current_date += timedelta(days=1)
 
+    # Print a success message
+    print(f"Data archived to {plays_path} successfully !")
+
 def plays_to_stdout(base_url, start_date, end_date):
     '''
     Function to scrape the website between start_date and end_date
@@ -180,7 +192,10 @@ def plays_to_stdout(base_url, start_date, end_date):
             pretty_title = titlecase.titlecase(title)
         
             # Print the data to stdout
-            print(f'{pretty_artist} - {pretty_title} (@{time} on {current_date})')
+            print(f"{pretty_artist} - {pretty_title} (@{time} on {current_date.strftime('%Y-%m-%d')})")
         
+        # Wait 2 seconds before moving on
+        time.sleep(2)
+
         # Move to the next day
         current_date += timedelta(days=1)
