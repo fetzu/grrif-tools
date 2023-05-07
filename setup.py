@@ -3,6 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name="grrif_tools",
     description="An unofficial set of tools for Cool Cats™.",
+    long_description="A set of tools for Cool Cats™. Allows you to archive GRRIF's play history to a SQLite database or text files, and maybe more...",
     author="Julien 'fetzu' Bono", 
     url="https://fetzu.ch/",
     version="0.5.1",
