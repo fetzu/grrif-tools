@@ -25,11 +25,16 @@ if __name__ == '__main__':
 # If argument -s was used, import sqlite3 and create/open the db
 if arguments['-s'] is True:
     import sqlite3
+    database_path = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), "data", "grrif_data.db")
+
+    # Creates the ../data/ directory if it does not exist yet
+    if not os.path.isdir(os.path.dirname(database_path)):
+        os.makedirs(os.path.dirname(database_path))
 
     # Create an emtpy db if it does not exist yet
-    if not os.path.isfile('grrif_data.db'):
+    if not os.path.isfile(database_path):
         # Create the 'plays' table
-        conn = sqlite3.connect('grrif_data.db')
+        conn = sqlite3.connect(database_path)
         conn.execute('''CREATE TABLE plays (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             date DATE NOT NULL,
@@ -42,7 +47,7 @@ if arguments['-s'] is True:
 
         conn.commit()
     else:
-        conn = sqlite3.connect('grrif_data.db')
+        conn = sqlite3.connect(database_path)
     
     c = conn.cursor()
 
@@ -89,7 +94,23 @@ while current_date <= end_date:
             print(f'{pretty_artist} - {pretty_title} (@{time} on {current_date})')
     
         # Save into a text file
+        if arguments['-t'] is True:
+            plays_path = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), "data", "plays")
 
+            # Creates the ../data/plays directory if it does not exist yet
+            os.makedirs(os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), "data", "plays"), exist_ok=True)
+
+            # Creates the a /YYYY/MM/ structure as needed within the ../data/plays directory
+            dirtree = os.path.join(plays_path, current_date.strftime('%Y'), current_date.strftime('%m'))
+            os.makedirs(dirtree, exist_ok=True)
+
+            # Format and write the data to a DD.txt file
+            formatteddata = f'{pretty_artist} - {pretty_title} (@{time})'
+            currentfile = os.path.join(dirtree, f'{current_date.strftime("%d")}.txt')
+            with open(currentfile, 'a') as f:
+                f.write(formatteddata)
+                f.write('\n')
+    
         # Save into the database
         if arguments['-s'] is True:
             # Make sure that the entries are not already present
@@ -100,6 +121,14 @@ while current_date <= end_date:
                 #print("Error: row already exists")
                 continue
 
+    # Make the entries for any given day chronological by reversing the lines in the text file
+    with open(currentfile, "r") as f:
+        lines = f.readlines()
+
+    with open(currentfile, "w") as f:
+        for line in reversed(lines):
+            f.write(line)
+    
     # Move to the next day
     current_date += timedelta(days=1)
 
