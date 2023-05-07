@@ -124,7 +124,7 @@ def plays_to_txt(base_url, start_date, end_date):
         data_items = data_section.find_all('article')
 
         # Extract the data from each item
-        for item in data_items:
+        for item in reversed(data_items):
             time = item.find('div', {'class': 'hours'}).text.strip()
             artist = item.find('div', {'class': 'artist'}).text.strip()
             title = item.find('div', {'class': 'title'}).text.strip()
@@ -143,13 +143,6 @@ def plays_to_txt(base_url, start_date, end_date):
             with open(currentfile, 'a') as f:
                 f.write(formatteddata)
                 f.write('\n')
-
-        # Make the entries for any given day chronological by reversing the lines in the text file
-        with open(currentfile, "r") as f:
-            lines = f.readlines()
-        with open(currentfile, "w") as f:
-            for line in reversed(lines):
-                f.write(line)
         
         # Move to the next day
         current_date += timedelta(days=1)
