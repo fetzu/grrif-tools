@@ -5,14 +5,14 @@ import argparse
 from datetime import date, datetime
 
 ## [ CONFIGURATION ]
-__version__ = "0.5.4"
+__version__ = "0.6.0"
 
 ## [ Is CLI even cooler with argparse? ]
 parser = argparse.ArgumentParser(
     description="A set of tools for Cool Cats™. Allows you to archive GRRIF's play history and scrobble it to last.fm (upcoming)."
 )
 
-subparsers = parser.add_subparsers(dest="subcommand")
+subparsers = parser.add_subparsers(dest="command")
 
 archive_parser = subparsers.add_parser("archive", help="Archive GRRIF's play history.")
 archive_parser.add_argument(
@@ -30,7 +30,50 @@ archive_parser.add_argument(
     "to_date",
     nargs="?",
     default=date.today().strftime("%Y-%m-%d"),
-    help=f"Specify the start date for the archive in YYYY-MM-DD format. Defaults to today ({date.today().strftime('%Y-%m-%d')})",
+    help=f"Specify the start date for the archive in YYYY-MM-DD format. Defaults to today ({date.today().strftime('%Y-%m-%d')}).",
+)
+
+stats_parser = subparsers.add_parser(
+    "stats", help="Get some stats out of the database."
+)
+stats_subparsers = stats_parser.add_subparsers(dest="stats_command")
+artists_parser = stats_subparsers.add_parser(
+    "artists", help="Display stats for artists"
+)
+artists_parser.add_argument(
+    "topofthepop",
+    choices=["top10", "top25", "top100"],
+    help="Display the top 10, 25 or 100 artists.",
+)
+artists_parser.add_argument(
+    "from_date",
+    nargs="?",
+    default="2021-01-01",
+    help="Specify the start date for the stats in YYYY-MM-DD format. Defaults to 2021-01-01.",
+)
+artists_parser.add_argument(
+    "to_date",
+    nargs="?",
+    default=date.today().strftime("%Y-%m-%d"),
+    help=f"Specify the start date for the stats in YYYY-MM-DD format. Defaults to today ({date.today().strftime('%Y-%m-%d')}).",
+)
+tracks_parser = stats_subparsers.add_parser("tracks", help="Display stats for tracks")
+tracks_parser.add_argument(
+    "topofthepop",
+    choices=["top10", "top25", "top100"],
+    help="Display the top 10, 25 or 100 tracks.",
+)
+tracks_parser.add_argument(
+    "from_date",
+    nargs="?",
+    default="2021-01-01",
+    help="Specify the start date for the stats in YYYY-MM-DD format. Defaults to 2021-01-01.",
+)
+tracks_parser.add_argument(
+    "to_date",
+    nargs="?",
+    default=date.today().strftime("%Y-%m-%d"),
+    help=f"Specify the start date for the stats in YYYY-MM-DD format. Defaults to today ({date.today().strftime('%Y-%m-%d')}).",
 )
 
 scrobble_parser = subparsers.add_parser(
@@ -47,7 +90,7 @@ scrobble_parser.add_argument(
     "to_date",
     nargs="?",
     default=date.today().strftime("%Y-%m-%d"),
-    help=f"Specify the start date for the archive in YYYY-MM-DD format. Defaults to today ({date.today().strftime('%Y-%m-%d')})",
+    help=f"Specify the start date for the archive in YYYY-MM-DD format. Defaults to today ({date.today().strftime('%Y-%m-%d')}).",
 )
 
 args = parser.parse_args()
@@ -74,7 +117,7 @@ def main():
     END_DATE = datetime.strptime(args.to_date, "%Y-%m-%d")
 
     # Archive was passed !
-    if args.subcommand == "archive":
+    if args.command == "archive":
         # The "save to SQLite database" option was chosen
         if args.destination == "db":
             # Let the user know what we are attempting
@@ -114,6 +157,26 @@ def main():
             # Create/open the database
             plays_to_stdout(BASE_URL, START_DATE, END_DATE)
 
+    # Stats was passed !
+    # Import the necessary functions
+    from .grrif_stats import topofthepop
+
+    if args.stats_command == "artists":
+        if args.topofthepop == "top10":
+            topofthepop("artist", "10", START_DATE, END_DATE)
+        if args.topofthepop == "top25":
+            topofthepop("artist", "25", START_DATE, END_DATE)
+        if args.topofthepop == "top100":
+            topofthepop("artist", "100", START_DATE, END_DATE)
+
+    if args.stats_command == "tracks":
+        if args.topofthepop == "top10":
+            topofthepop("artist, title", "10", START_DATE, END_DATE)
+        if args.topofthepop == "top25":
+            topofthepop("artist, title", "25", START_DATE, END_DATE)
+        if args.topofthepop == "top100":
+            topofthepop("title", "100", START_DATE, END_DATE)
+
     # Scrobble was passed !
-    if args.subcommand == "scrobble":
+    if args.command == "scrobble":
         print("Uh-oh, this doesn't exist yet!")
