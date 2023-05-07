@@ -19,7 +19,7 @@ def plays_to_db(BASE_URL, START_DATE, END_DATE):
     write_to_db(BASE_URL, START_DATE, END_DATE, database_path)
 
 def database_handler():
-    ''' 
+    '''
     Function to check if the  SQLite database
     with a "plays" table containing the plays exists,
     create it if it doesn't...
@@ -87,7 +87,7 @@ def write_to_db(base_url, start_date, end_date, database_path):
             # Prettify the data
             pretty_artist = titlecase.titlecase(artist)
             pretty_title = titlecase.titlecase(title)
-        
+
             # Save into the database
             # Make sure that the entries are not already present
             try:
@@ -96,7 +96,7 @@ def write_to_db(base_url, start_date, end_date, database_path):
             except sqlite3.IntegrityError:
                 #print("Error: row already exists")
                 continue
-        
+
         # Move to the next day
         current_date += timedelta(days=1)
 
@@ -141,7 +141,7 @@ def plays_to_txt(base_url, start_date, end_date):
             # Prettify the data
             pretty_artist = titlecase.titlecase(artist)
             pretty_title = titlecase.titlecase(title)
-        
+
             # Creates the a /YYYY/MM/ structure as needed within the ../data/plays directory
             dirtree = os.path.join(plays_path, current_date.strftime('%Y'), current_date.strftime('%m'))
             os.makedirs(dirtree, exist_ok=True)
@@ -152,7 +152,7 @@ def plays_to_txt(base_url, start_date, end_date):
             with open(currentfile, 'a') as f:
                 f.write(formatteddata)
                 f.write('\n')
-        
+
         # Move to the next day
         current_date += timedelta(days=1)
 
@@ -190,10 +190,10 @@ def plays_to_stdout(base_url, start_date, end_date):
             # Prettify the data
             pretty_artist = titlecase.titlecase(artist)
             pretty_title = titlecase.titlecase(title)
-        
+
             # Print the data to stdout
             print(f"{pretty_artist} - {pretty_title} (@{time} on {current_date.strftime('%Y-%m-%d')})")
-        
+
         # Wait 2 seconds before moving on
         time.sleep(2)
 

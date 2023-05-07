@@ -68,7 +68,7 @@ def main():
 
     # Set the base URL to scrape data from
     BASE_URL = 'https://www.grrif.ch/recherche-de-titres/?date={}'
-    
+
     # Set the date range to scrape data for
     START_DATE = datetime.strptime(args.from_date, '%Y-%m-%d')
     END_DATE = datetime.strptime(args.to_date, '%Y-%m-%d')
