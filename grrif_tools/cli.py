@@ -5,7 +5,7 @@ import argparse
 from datetime import date, datetime
 
 ## [ CONFIGURATION ]
-__version__ = "0.5.3"
+__version__ = "0.5.4"
 
 ## [ Is CLI even cooler with argparse? ]
 parser = argparse.ArgumentParser(
@@ -77,6 +77,11 @@ def main():
     if args.subcommand == "archive":
         # The "save to SQLite database" option was chosen
         if args.destination == "db":
+            # Let the user know what we are attempting
+            print(
+                f"Attempting to archive plays from {START_DATE.strftime('%Y-%m-%d')} to {END_DATE.strftime('%Y-%m-%d')} to a SQLite database."
+            )
+
             # Import the necessary functions
             from .grrif_archiver import plays_to_db
 
@@ -85,6 +90,11 @@ def main():
 
         # The "save to text files" option was chosen
         if args.destination == "txt":
+            # Let the user know what we are attempting
+            print(
+                f"Attempting to archive plays from {START_DATE.strftime('%Y-%m-%d')} to {END_DATE.strftime('%Y-%m-%d')} to text files."
+            )
+
             # Import the necessary functions
             from .grrif_archiver import plays_to_txt
 
@@ -93,6 +103,11 @@ def main():
 
         # The "output data to stdout" option was chosen
         if args.destination == "print":
+            # Let the user know what we are attempting
+            print(
+                f"Attempting to print plays from {START_DATE.strftime('%Y-%m-%d')} to {END_DATE.strftime('%Y-%m-%d')} to stdout."
+            )
+
             # Import the necessary functions
             from .grrif_archiver import plays_to_stdout
 

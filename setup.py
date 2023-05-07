@@ -10,9 +10,9 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     author="Julien 'fetzu' Bono", 
-    url="https://fetzu.ch/",
-    version="0.5.3",
-    download_url="https://github.com/fetzu/grrif_tools",
+    url="https://github.com/fetzu/grrif_tools",
+    version="0.5.4",
+    download_url="https://github.com/fetzu/grrif_tools/releases/latest",
     packages=find_packages(include=['grrif_tools','grrif_tools.*']),
     license="License :: OSI Approved :: MIT License",
     install_requires=[

@@ -54,6 +54,7 @@ def database_handler():
     else:
         pass
 
+    print(f"Database loaded at {database_path}.")
     return database_path
 
 
@@ -110,6 +111,9 @@ def write_to_db(base_url, start_date, end_date, database_path):
             except sqlite3.IntegrityError:
                 # print("Error: row already exists")
                 continue
+
+        # Update the user on current progress
+        print(f"Plays for {current_date.strftime('%Y-%m-%d')} saved to database.")
 
         # Wait 2 seconds before moving on
         time.sleep(2)
@@ -174,6 +178,9 @@ def plays_to_txt(base_url, start_date, end_date):
             with open(currentfile, "a") as f:
                 f.write(formatteddata)
                 f.write("\n")
+
+        # Update the user on current progress
+        print(f"Plays for {current_date.strftime('%Y-%m-%d')} saved to {currentfile}.")
 
         # Wait 2 seconds before moving on
         time.sleep(2)
