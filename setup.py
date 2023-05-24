@@ -13,9 +13,9 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Julien 'fetzu' Bono",
-    url="https://github.com/fetzu/grrif_tools",
-    version="0.6.1",
-    download_url="https://github.com/fetzu/grrif_tools/releases/latest",
+    url="https://github.com/fetzu/grrif-tools",
+    version="0.6.2",
+    download_url="https://github.com/fetzu/grrif-tools/releases/latest",
     packages=find_packages(include=["grrif_tools", "grrif_tools.*"]),
     license="License :: OSI Approved :: MIT License",
     install_requires=[

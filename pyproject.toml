@@ -1,6 +1,6 @@
 [project]
 name = "grrif_tools"
-version = "0.6.1"
+version = "0.6.2"
 authors = [
   { name="Julien 'fetzu' Bono" },
 ]
@@ -23,5 +23,5 @@ dependencies = [
 grrif_tools = "grrif_tools.cli:main"
 
 [project.urls]
-"Homepage" = "https://github.com/fetzu/grrif_tools"
-"Bug Tracker" = "https://github.com/fetzu/grrif_tools/issues"
+"Homepage" = "https://github.com/fetzu/grrif-tools"
+"Bug Tracker" = "https://github.com/fetzu/grrif-tools/issues"
