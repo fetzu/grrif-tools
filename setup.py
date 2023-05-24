@@ -8,20 +8,20 @@ with open(
     long_description = f.read()
 
 setup(
-    name="grrif_tools",
+    name="grrif-tools",
     description="An unofficial set of tools for Cool Cats™.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Julien 'fetzu' Bono",
-    url="https://github.com/fetzu/grrif_tools",
-    version="0.6.1",
-    download_url="https://github.com/fetzu/grrif_tools/releases/latest",
-    packages=find_packages(include=["grrif_tools", "grrif_tools.*"]),
+    url="https://github.com/fetzu/grrif-tools",
+    version="0.7.0",
+    download_url="https://github.com/fetzu/grrif-tools/releases/latest",
+    packages=find_packages(include=["grrif-tools", "grrif-tools.*"]),
     license="License :: OSI Approved :: MIT License",
     install_requires=[
         "Requests==2.30.0",
         "beautifulsoup4==4.11.1",
         "titlecase==2.4",
     ],
-    entry_points={"console_scripts": ["grrif_tools=grrif_tools.cli:main"]},
+    entry_points={"console_scripts": ["grrif-tools=grrif-tools.cli:main"]},
 )

@@ -1,6 +1,6 @@
 [project]
-name = "grrif_tools"
-version = "0.6.1"
+name = "grrif-tools"
+version = "0.7.0"
 authors = [
   { name="Julien 'fetzu' Bono" },
 ]
@@ -20,8 +20,8 @@ dependencies = [
 ]
 
 [project.entry-points.'console_scripts']
-grrif_tools = "grrif_tools.cli:main"
+grrif-tools = "grrif-tools.cli:main"
 
 [project.urls]
-"Homepage" = "https://github.com/fetzu/grrif_tools"
-"Bug Tracker" = "https://github.com/fetzu/grrif_tools/issues"
+"Homepage" = "https://github.com/fetzu/grrif-tools"
+"Bug Tracker" = "https://github.com/fetzu/grrif-tools/issues"

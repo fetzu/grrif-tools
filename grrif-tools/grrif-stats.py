@@ -1,6 +1,6 @@
 import os
 import sqlite3
-from .grrif_archiver import database_handler
+from .grrif-archiver import database_handler
 
 # connect to the SQLite database
 database_path = database_handler()

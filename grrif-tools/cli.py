@@ -5,7 +5,7 @@ import argparse
 from datetime import date, datetime
 
 ## [ CONFIGURATION ]
-__version__ = "0.6.1"
+__version__ = "0.7.0"
 
 ## [ Is CLI even cooler with argparse? ]
 parser = argparse.ArgumentParser(
@@ -126,7 +126,7 @@ def main():
             )
 
             # Import the necessary functions
-            from .grrif_archiver import plays_to_db
+            from .grrif-archiver import plays_to_db
 
             # Create/open the database
             plays_to_db(BASE_URL, START_DATE, END_DATE)
@@ -139,7 +139,7 @@ def main():
             )
 
             # Import the necessary functions
-            from .grrif_archiver import plays_to_txt
+            from .grrif-archiver import plays_to_txt
 
             # Create/open the database
             plays_to_txt(BASE_URL, START_DATE, END_DATE)
@@ -152,14 +152,14 @@ def main():
             )
 
             # Import the necessary functions
-            from .grrif_archiver import plays_to_stdout
+            from .grrif-archiver import plays_to_stdout
 
             # Create/open the database
             plays_to_stdout(BASE_URL, START_DATE, END_DATE)
 
     # Stats was passed !
     # Import the necessary functions
-    from .grrif_stats import topofthepop
+    from .grrif-stats import topofthepop
 
     if args.stats_command == "artists":
         if args.topofthepop == "top10":
