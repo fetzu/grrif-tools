@@ -1,6 +1,6 @@
 [project]
 name = "grrif_tools"
-version = "0.7.0"
+version = "0.7.1"
 authors = [
   { name="Julien 'fetzu' Bono" },
 ]
@@ -14,9 +14,10 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "Requests==2.30.0",
-    "beautifulsoup4==4.11.1",
+    "Requests==2.31.0",
+    "beautifulsoup4==4.12.2",
     "titlecase==2.4",
+    "miniaudio==1.57",
 ]
 
 [project.entry-points.'console_scripts']

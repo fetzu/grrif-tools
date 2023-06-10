@@ -14,14 +14,15 @@ setup(
     long_description_content_type="text/markdown",
     author="Julien 'fetzu' Bono",
     url="https://github.com/fetzu/grrif-tools",
-    version="0.7.0",
+    version="0.7.1",
     download_url="https://github.com/fetzu/grrif-tools/releases/latest",
     packages=find_packages(include=["grrif_tools", "grrif_tools.*"]),
     license="License :: OSI Approved :: MIT License",
     install_requires=[
-        "Requests==2.30.0",
-        "beautifulsoup4==4.11.1",
+        "Requests==2.31.0",
+        "beautifulsoup4==4.12.2",
         "titlecase==2.4",
+        "miniaudio==1.57",
     ],
     entry_points={"console_scripts": ["grrif_tools=grrif_tools.cli:main"]},
 )

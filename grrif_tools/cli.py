@@ -5,7 +5,7 @@ import argparse
 from datetime import date, datetime
 
 ## [ CONFIGURATION ]
-__version__ = "0.7.0"
+__version__ = "0.7.1"
 
 ## [ Is CLI even cooler with argparse? ]
 parser = argparse.ArgumentParser(
@@ -96,10 +96,10 @@ scrobble_parser.add_argument(
 stream_parser = subparsers.add_parser(
     "play",
     help="Play GRRIF in your terminal!",
-)
-stream_parser.add_argument(
+).add_argument(
     "quality",
     choices=["mp3_high", "mp3_low", "aac_high"],
+    nargs="?",
     default="mp3_high",
     help="Specify streaming quality (default: mp3_high)",
 )
@@ -195,7 +195,6 @@ def main():
         print("Uh-oh, this doesn't exist yet!")
 
     # Play was passed !
-    # Import the necessary functions
     if args.command == "play":
         from .grrif_player import start_playback
         start_playback(args.quality)
