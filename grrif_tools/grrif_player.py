@@ -33,7 +33,8 @@ def stream_and_write(url, file_path, max_size, stop_event):
             file.flush()
 
 def play_stream(file_path, stop_event):
-    time.sleep(2) # Let the buffer fill up for 2 seconds before playing...
+    print("Buffering...")
+    time.sleep(3) # Let the buffer fill up for 3 seconds before playing...
 
     try:
         stream = miniaudio.stream_file(file_path)
@@ -58,7 +59,7 @@ def start_playback(quality="mp3_high"):
     
     if not os.path.exists(buffer_file):
         open(buffer_file, 'w').close()  # Create an empty file if it doesn't exist
-        time.sleep(0.5) # Give the OS a little time to create the file before writing to it
+        time.sleep(1) # Give the OS a little time to create the file before writing to it
 
     stream_thread = threading.Thread(target=stream_and_write, args=(url, buffer_file, max_file_size, stop_event))
     stream_thread.start()
@@ -69,3 +70,7 @@ def start_playback(quality="mp3_high"):
     # Wait for both threads to complete
     stream_thread.join()
     play_thread.join()
+
+    # Delete the buffer file
+    if os.path.exists(buffer_file):
+        os.remove(buffer_file)
