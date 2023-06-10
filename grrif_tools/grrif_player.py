@@ -6,6 +6,7 @@ import requests
 import miniaudio
 import threading
 import time
+from .grrif_scrobbler import currently_playing
 
 buffer_file = "buferr.mp3"
 max_file_size = 0.25 * 1024 * 1024  # 250 KB
@@ -41,9 +42,12 @@ def play_stream(file_path, stop_event):
 
         with miniaudio.PlaybackDevice() as device:
             device.start(stream)
-            input("Audio file playing in the background. Press Enter to stop playback: ")
+            currently_playing_thread = threading.Thread(target=currently_playing, args=("0", stop_event))
+            currently_playing_thread.start()
+            input("Streaming. Press the Enter key to stop playback.\n")
+            print("Stopping playback, this can take up to 10 seconds.")
     except miniaudio.DecodeError as e:
-        print(f"Failed to play the audio: {e}")
+        print(f"Failed to start streaming: {e}")
 
     stop_event.set()
 
