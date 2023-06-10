@@ -1,3 +1,7 @@
+"""
+GRRIF Stats helper functions
+"""
+
 import os
 import sqlite3
 from .grrif_archiver import database_handler

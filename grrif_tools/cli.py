@@ -5,7 +5,7 @@ import argparse
 from datetime import date, datetime
 
 ## [ CONFIGURATION ]
-__version__ = "0.6.2"
+__version__ = "0.7.0-dev"
 
 ## [ Is CLI even cooler with argparse? ]
 parser = argparse.ArgumentParser(
@@ -93,6 +93,17 @@ scrobble_parser.add_argument(
     help=f"Specify the start date for the archive in YYYY-MM-DD format. Defaults to today ({date.today().strftime('%Y-%m-%d')}).",
 )
 
+stream_parser = subparsers.add_parser(
+    "play",
+    help="Play GRRIF in your terminal!",
+)
+stream_parser.add_argument(
+    "quality",
+    choices=["mp3_high", "mp3_low", "aac_high"],
+    default="mp3_high",
+    help="Specify streaming quality (default: mp3_high)",
+)
+
 args = parser.parse_args()
 
 
@@ -109,12 +120,13 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-    # Set the base URL to scrape data from
-    BASE_URL = "https://www.grrif.ch/recherche-de-titres/?date={}"
+    if args.command == "archive" or args.command == "stats":
+        # Set the base URL to scrape data from
+        BASE_URL = "https://www.grrif.ch/recherche-de-titres/?date={}"
 
-    # Set the date range to scrape data for
-    START_DATE = datetime.strptime(args.from_date, "%Y-%m-%d")
-    END_DATE = datetime.strptime(args.to_date, "%Y-%m-%d")
+        # Set the date range to scrape data for
+        START_DATE = datetime.strptime(args.from_date, "%Y-%m-%d")
+        END_DATE = datetime.strptime(args.to_date, "%Y-%m-%d")
 
     # Archive was passed !
     if args.command == "archive":
@@ -158,25 +170,32 @@ def main():
             plays_to_stdout(BASE_URL, START_DATE, END_DATE)
 
     # Stats was passed !
-    # Import the necessary functions
-    from .grrif_stats import topofthepop
+    if args.command == "stats":
+        # Import the necessary functions
+        from .grrif_stats import topofthepop
 
-    if args.stats_command == "artists":
-        if args.topofthepop == "top10":
-            topofthepop("artist", "10", START_DATE, END_DATE)
-        if args.topofthepop == "top25":
-            topofthepop("artist", "25", START_DATE, END_DATE)
-        if args.topofthepop == "top100":
-            topofthepop("artist", "100", START_DATE, END_DATE)
+        if args.stats_command == "artists":
+            if args.topofthepop == "top10":
+                topofthepop("artist", "10", START_DATE, END_DATE)
+            if args.topofthepop == "top25":
+                topofthepop("artist", "25", START_DATE, END_DATE)
+            if args.topofthepop == "top100":
+                topofthepop("artist", "100", START_DATE, END_DATE)
 
-    if args.stats_command == "tracks":
-        if args.topofthepop == "top10":
-            topofthepop("artist, title", "10", START_DATE, END_DATE)
-        if args.topofthepop == "top25":
-            topofthepop("artist, title", "25", START_DATE, END_DATE)
-        if args.topofthepop == "top100":
-            topofthepop("title", "100", START_DATE, END_DATE)
+        if args.stats_command == "tracks":
+            if args.topofthepop == "top10":
+                topofthepop("artist, title", "10", START_DATE, END_DATE)
+            if args.topofthepop == "top25":
+                topofthepop("artist, title", "25", START_DATE, END_DATE)
+            if args.topofthepop == "top100":
+                topofthepop("title", "100", START_DATE, END_DATE)
 
     # Scrobble was passed !
     if args.command == "scrobble":
         print("Uh-oh, this doesn't exist yet!")
+
+    # Play was passed !
+    # Import the necessary functions
+    if args.command == "play":
+        from .grrif_player import start_playback
+        start_playback(args.quality)
