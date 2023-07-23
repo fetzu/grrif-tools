@@ -60,14 +60,14 @@ def start_playback(quality="mp3_high"):
         url = "https://grrif.ice.infomaniak.ch/grrif-48.mp3"
     elif quality == "aac_high":
         url = "https://grrif.ice.infomaniak.ch/grrif-128.aac"
-    
+
     if not os.path.exists(buffer_file):
         open(buffer_file, 'w').close()  # Create an empty file if it doesn't exist
         time.sleep(1) # Give the OS a little time to create the file before writing to it
 
     stream_thread = threading.Thread(target=stream_and_write, args=(url, buffer_file, max_file_size, stop_event))
     stream_thread.start()
-    
+
     play_thread = threading.Thread(target=play_stream, args=(buffer_file, stop_event))
     play_thread.start()
 

@@ -80,18 +80,31 @@ scrobble_parser = subparsers.add_parser(
     "scrobble",
     help="Scrobble to Last.fm.",
 )
-scrobble_parser.add_argument(
-    "from_date",
-    nargs="?",
-    default="2021-01-01",
-    help="Specify the start date for the archive in YYYY-MM-DD format. Defaults to 2021-01-01.",
+scrobble_subparsers = scrobble_parser.add_subparsers(dest="scrobble_command")
+
+settings_parser = scrobble_subparsers.add_parser(
+    "settings", help="Set your last.fm scrobbling settings"
 )
-scrobble_parser.add_argument(
-    "to_date",
-    nargs="?",
-    default=date.today().strftime("%Y-%m-%d"),
-    help=f"Specify the start date for the archive in YYYY-MM-DD format. Defaults to today ({date.today().strftime('%Y-%m-%d')}).",
+settings_parser.add_argument(
+    "API_KEY",
+    type=str,
+    help="Your last.fm API Key",
 )
+settings_parser.add_argument(
+    "API_SECRET",
+    type=str,
+    help="Your last.fm API secret",
+)
+settings_parser.add_argument(
+    "SESSION_KEY",
+    type=str,
+    help="Your last.fm API session key",
+)
+
+livescrobble_parser = scrobble_subparsers.add_parser(
+    "start", help="Start scrobbling to last.fm now."
+)
+
 
 stream_parser = subparsers.add_parser(
     "play",
@@ -192,9 +205,25 @@ def main():
 
     # Scrobble was passed !
     if args.command == "scrobble":
-        print("Uh-oh, this doesn't exist yet!")
+
+        if args.scrobble_command == "settings":
+            if args.API_KEY is not None and args.API_SECRET is not None and args.SESSION_KEY is not None:
+                # Write the settings to file
+                import os
+                current_path = os.path.dirname(os.path.abspath(__file__))
+                settings_path = os.path.join(current_path, "grrif_secrets.py")
+                settings_content = f"API_KEY = '{args.API_KEY}'\nAPI_SECRET = '{args.API_SECRET}'\nSESSION_KEY = '{args.SESSION_KEY}'\n"
+                with open(settings_path, "w") as settings_file:
+                    settings_file.write(settings_content)
+            else:
+                print("Invalid number of arguments passed, API Key, API Secret and Session Key are needed.")
+
+        if args.scrobble_command == "start":
+            from .grrif_scrobbler import start_scrobbling
+            start_scrobbling("0")
 
     # Play was passed !
     if args.command == "play":
         from .grrif_player import start_playback
         start_playback(args.quality)
+ 
