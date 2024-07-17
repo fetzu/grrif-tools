@@ -14,7 +14,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "Requests==2.31.0",
+    "Requests==2.32.2",
     "beautifulsoup4==4.12.2",
     "titlecase==2.4",
     "miniaudio==1.57",
