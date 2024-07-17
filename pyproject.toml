@@ -17,7 +17,7 @@ dependencies = [
     "Requests==2.32.2",
     "beautifulsoup4==4.12.2",
     "titlecase==2.4",
-    "miniaudio==1.57",
+    "miniaudio==1.60",
 ]
 
 [project.entry-points.'console_scripts']
