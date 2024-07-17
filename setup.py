@@ -19,7 +19,7 @@ setup(
     packages=find_packages(include=["grrif_tools", "grrif_tools.*"]),
     license="License :: OSI Approved :: MIT License",
     install_requires=[
-        "Requests==2.31.0",
+        "Requests==2.32.2",
         "beautifulsoup4==4.12.2",
         "titlecase==2.4",
         "miniaudio==1.57",
