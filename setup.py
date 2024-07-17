@@ -20,7 +20,7 @@ setup(
     license="License :: OSI Approved :: MIT License",
     install_requires=[
         "Requests==2.32.2",
-        "beautifulsoup4==4.12.2",
+        "beautifulsoup4==4.12.3",
         "titlecase==2.4",
         "miniaudio==1.57",
     ],
