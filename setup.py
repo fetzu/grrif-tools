@@ -22,7 +22,7 @@ setup(
         "Requests==2.32.3",
         "beautifulsoup4==4.12.3",
         "titlecase==2.4.1",
-        "miniaudio==1.60",
+        "miniaudio==1.61",
     ],
     entry_points={"console_scripts": ["grrif_tools=grrif_tools.cli:main"]},
 )
