@@ -10,7 +10,7 @@ from .version import __version__
 from .grrif_archiver import plays_to_db, plays_to_txt, plays_to_stdout
 from .grrif_stats import get_top_artists, get_top_tracks
 from .grrif_player import start_playback, stop_playback
-from .grrif_scrobbler import start_scrobbling
+from .grrif_scrobbler import start_scrobbling, authenticate_lastfm
 
 __all__ = [
     "__version__",
@@ -21,5 +21,6 @@ __all__ = [
     "get_top_tracks",
     "start_playback",
     "stop_playback",
-    "start_scrobbling"
+    "start_scrobbling",
+    "authenticate_lastfm"
 ]

@@ -1,6 +1,6 @@
 # GRRIF Tools
 
-A set of tools for Cool Cats™. 
+A set of tools for Cool Cats™.
 
 GRRIF Tools allows you to archive GRRIF radio's play history to a SQLite database or text files, compute statistics (top artists and tracks), stream the radio live in your console, and scrobble tracks to Last.fm.
 
@@ -37,7 +37,7 @@ Navigate through the menu with arrow keys and select options with Enter. The TUI
 ```
 usage: grrif_tools [-h] [--tui] {archive,stats,play,scrobble} ...
 
-GRRIF Tools v0.8.3: A set of tools for Cool Cats™. Allows you to archive GRRIF's play history, view stats,
+GRRIF Tools v0.9.1: A set of tools for Cool Cats™. Allows you to archive GRRIF's play history, view stats,
 stream the radio, and scrobble to Last.fm.
 
 positional arguments:
@@ -103,31 +103,46 @@ The console will display the currently playing track and scrobble it to Last.fm 
 
 #### Last.fm Scrobbling
 
-Set up and start Last.fm scrobbling:
+GRRIF Tools provides a simple way to set up Last.fm scrobbling:
 
 ```bash
-# Configure Last.fm credentials
+# Authenticate with Last.fm (interactive)
+grrif_tools scrobble authenticate API_KEY API_SECRET
+
+# Manually set Last.fm credentials (if you already have a session key)
 grrif_tools scrobble settings API_KEY API_SECRET SESSION_KEY
 
 # Start scrobbling
 grrif_tools scrobble start
 ```
 
+The `authenticate` command handles the full Last.fm authentication flow:
+1. Requests a token from Last.fm
+2. Opens your browser to authorize the application
+3. Waits for your confirmation
+4. Retrieves and saves your session key automatically
+
 Scrobbling will automatically track what's playing on GRRIF and send it to your Last.fm account.
 
 ## Last.fm Authentication
 
-To use the scrobbling feature, you'll need to create an API application on Last.fm:
+To use the scrobbling feature, you'll need a Last.fm API account:
 
 1. Create an API account at https://www.last.fm/api/account/create
 2. Get your API key and secret
-3. Follow the authentication protocol at https://www.last.fm/api/authspec to obtain a session key
+3. Run the authentication command:
+   ```bash
+   grrif_tools scrobble authenticate YOUR_API_KEY YOUR_API_SECRET
+   ```
+4. Follow the prompts to authorize the application in your browser
+5. Once authorized, your session key will be saved automatically
 
-The session key creation process requires:
-- Getting a token from https://www.last.fm/api/auth with your API key
-- Authorizing the token by visiting https://www.last.fm/api/auth?api_key=YOUR_API_KEY&token=YOUR_TOKEN
-- Creating an MD5 hash of "api_key[your api key]methodauth.getSessiontoken[your token][your api secret]"
-- Sending a request to https://ws.audioscrobbler.com/2.0/?method=auth.getSession&api_key=YOUR_API_KEY&token=YOUR_TOKEN&api_sig=YOUR_MD5_HASH
+If you prefer to handle the authentication process manually, you can still use the traditional method:
+1. Get a token from https://www.last.fm/api/auth with your API key
+2. Authorize the token by visiting https://www.last.fm/api/auth?api_key=YOUR_API_KEY&token=YOUR_TOKEN
+3. Create an MD5 hash of "api_key[your api key]methodauth.getSessiontoken[your token][your api secret]"
+4. Send a request to https://ws.audioscrobbler.com/2.0/?method=auth.getSession&api_key=YOUR_API_KEY&token=YOUR_TOKEN&api_sig=YOUR_MD5_HASH
+5. Set the obtained session key with `grrif_tools scrobble settings API_KEY API_SECRET SESSION_KEY`
 
 ## Data Storage
 
@@ -135,8 +150,8 @@ All data is stored in your home directory under `~/grrif_data/`:
 
 - SQLite database: `~/grrif_data/grrif_data.db`
 - Text files: `~/grrif_data/plays/YYYY/MM/DD.txt`
-- Configuration: `~/grrif_data/config.ini`
-- Temporary buffer file: `~/grrif_data/buffer.mp3`
+- Configuration: `~/grrif_data/config.json`
+- Temporary buffer file: `~/grrif_data/buferr.mp3`
 
 ## Examples
 
@@ -167,7 +182,7 @@ grrif_tools stats artists top25 $last_month $today
 ```bash
 # Start in a screen session
 screen -S grrif-scrobble
-# Start scrobbling (after setting credentials)
+# Start scrobbling (after authentication)
 grrif_tools scrobble start
 # Detach with Ctrl+A then D
 ```

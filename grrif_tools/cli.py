@@ -10,7 +10,7 @@ from .version import __version__
 from .utils import Config, logger
 from .grrif_archiver import plays_to_db, plays_to_txt, plays_to_stdout
 from .grrif_player import start_playback, stop_playback
-from .grrif_scrobbler import start_scrobbling
+from .grrif_scrobbler import start_scrobbling, authenticate_lastfm
 from .grrif_stats import get_top_artists, get_top_tracks
 from .tui import run_tui
 
@@ -151,6 +151,20 @@ def parse_args() -> argparse.Namespace:
         default="mp3_high",
         help="Specify streaming quality (default: mp3_high)"
     )
+
+    # Add authenticate command
+    auth_parser = scrobble_subparsers.add_parser(
+        "authenticate", 
+        help="Authenticate with Last.fm and obtain a session key"
+    )
+    auth_parser.add_argument(
+        "api_key",
+        help="Your Last.fm API Key"
+    )
+    auth_parser.add_argument(
+        "api_secret",
+        help="Your Last.fm API Secret"
+    )
     
     return parser.parse_args()
 
@@ -242,6 +256,27 @@ def main() -> None:
                 args.session_key
             )
             print("Last.fm credentials saved successfully.")
+            
+        # Authenticate with Last.fm
+        elif args.scrobble_command == "authenticate":
+            print("Starting Last.fm authentication process...")
+            result = authenticate_lastfm(args.api_key, args.api_secret)
+            
+            if 'success' in result and result['success']:
+                config = Config()
+                config.set_lastfm_credentials(
+                    args.api_key,
+                    args.api_secret,
+                    result['session_key']
+                )
+                print(f"\nAuthentication successful!")
+                print(f"Username: {result['username']}")
+                print(f"Session key: {result['session_key']}")
+                print("\nCredentials have been saved. You can now use 'grrif_tools scrobble start' to begin scrobbling.")
+            else:
+                error_code = result.get('error', 'unknown')
+                error_message = result.get('message', 'Unknown error')
+                print(f"\nAuthentication failed: {error_code} - {error_message}")
         
         # Start scrobbling
         elif args.scrobble_command == "start":

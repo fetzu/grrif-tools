@@ -31,7 +31,10 @@ def stream_and_write(url: str, file_path: Path, max_size: int, stop_event: threa
         stop_event: Event to signal when to stop streaming.
     """
     try:
-        response = requests.get(url, stream=True)
+        headers = {
+            'User-Agent': 'GRRIFTools/1.0',  # Add a user agent to help with stream reliability
+        }
+        response = requests.get(url, stream=True, headers=headers, timeout=30)
         response.raise_for_status()  # Raise for HTTP errors
         
         with open(file_path, 'wb') as file:
@@ -76,12 +79,22 @@ def play_stream(file_path: Path, stop_event: threading.Event) -> None:
         # Start the scrobbler in a separate thread
         global _scrobbler
         _scrobbler = TrackScrobbler()
-        scrobbler_thread = threading.Thread(
-            target=_scrobbler.start_tracking, 
-            args=(stop_event,)
-        )
-        scrobbler_thread.daemon = True  # Thread will terminate when program exits
-        scrobbler_thread.start()
+        
+        # Check if scrobbler has credentials before starting
+        if _scrobbler.has_credentials():
+            logger.info("Last.fm credentials found, scrobbling enabled")
+            scrobbler_thread = threading.Thread(
+                target=_scrobbler.start_tracking, 
+                args=(stop_event,)
+            )
+            scrobbler_thread.daemon = True  # Thread will terminate when program exits
+            scrobbler_thread.start()
+        else:
+            logger.warning("Last.fm credentials not found, scrobbling disabled")
+            print("Note: Last.fm scrobbling is disabled. To enable, please set up your credentials.")
+            print("You can either:")
+            print("1. Use 'grrif_tools scrobble settings' to configure via CLI")
+            print("2. Create a grrif_secrets.py file with API_KEY, API_SECRET, and SESSION_KEY variables")
         
         # Start playback
         logger.info("Starting playback...")
@@ -103,13 +116,10 @@ def play_stream(file_path: Path, stop_event: threading.Event) -> None:
                     
                     # Try to check if we need to restart the stream
                     try:
-                        # This is a workaround since we can't directly check if it's playing
-                        # Instead, we'll recreate the stream periodically
-                        if not stop_event.is_set():
-                            # Print currently playing track from scrobbler
-                            if _scrobbler and _scrobbler.current_track:
-                                track = _scrobbler.current_track
-                                print(f"\rNow playing: {track['artist']} - {track['title']}   ", end="")
+                        # Print currently playing track from scrobbler
+                        if _scrobbler and _scrobbler.current_track:
+                            track = _scrobbler.current_track
+                            print(f"\rNow playing: {track['artist']} - {track['title']}   ", end="", flush=True)
                     except Exception as e:
                         # If any error occurs, try to restart the stream
                         logger.warning(f"Playback issue, attempting restart: {e}")
@@ -194,7 +204,8 @@ def start_playback(quality: str = "mp3_high") -> None:
     
     try:
         # Keep main thread alive until user presses Enter
-        input("\nStreaming. Press Enter to stop...\n")
+        print("\nStreaming. Press Enter to stop...\n")
+        input()  # Wait for Enter key
         logger.info("User requested stop")
     except KeyboardInterrupt:
         logger.info("Received keyboard interrupt")

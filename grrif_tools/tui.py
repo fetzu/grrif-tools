@@ -891,7 +891,6 @@ Footer {
 
 def run_tui():
     """Run the TUI application."""
-    # Create CSS file if it doesn't exist
     create_css_file()
     
     # Run the app
