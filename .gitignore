@@ -161,3 +161,4 @@ cython_debug/
 
 # Data folder
 data/
+grrif_tools/grrif_secrets.py

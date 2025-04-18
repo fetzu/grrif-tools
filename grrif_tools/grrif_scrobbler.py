@@ -1,85 +1,187 @@
-import requests
+"""
+GRRIF Scrobbler helper functions.
+
+This module provides functions to scrobble GRRIF tracks to Last.fm.
+"""
 import time
+import hashlib
+import threading
+from typing import Dict, Optional, Any
+import requests
 import titlecase
 
-from grrif_secrets import API_KEY, API_SECRET, SESSION_KEY
+from .utils import Config, logger
 
-artist = ""
-title = ""
-
-def hashRequest(obj, secretKey):
+class TrackScrobbler:
     """
-    Lifted from https://github.com/bretsky/lastfm-scrobbler/blob/master/lastpy/__init__.py
-    MIT License
-    Copyright (c) 2019 Noah Huber-Feely
+    Class to handle scrobbling tracks to Last.fm.
     """
-    import hashlib
-
-    string = ''
-    items = list(obj.keys())
-    items.sort()
-    for i in items:
-        string += i
-        string += obj[i]
-    string += secretKey
-    stringToHash = string.encode('utf8')
-    requestHash = hashlib.md5(stringToHash).hexdigest()
-    return requestHash
-
-def scrobble_track(artist, track, timestamp):
-    """
-    Crafts and sends a POST request to Last.fm's API to scrobble a track.
-    """
-    url = "http://ws.audioscrobbler.com/2.0/"
-
-    params = {
-        "method": "track.scrobble",
-        "api_key": API_KEY,
-        "artist": artist,
-        "chosenByUser": "0",
-        "sk": SESSION_KEY,
-        "timestamp": str(timestamp),
-        "track": track,
+    def __init__(self):
+        """Initialize the scrobbler with configuration and state."""
+        self.config = Config()
+        self.credentials = self.config.get_lastfm_credentials()
+        self.current_track = None
+        self.last_check_time = ""
+        self.check_interval = 60  # Check for new track every 60 seconds
+        
+    def has_credentials(self) -> bool:
+        """Check if the required Last.fm credentials are set."""
+        return all([
+            self.credentials['api_key'],
+            self.credentials['api_secret'],
+            self.credentials['session_key']
+        ])
+    
+    def hash_request(self, params: Dict[str, str]) -> str:
+        """
+        Create a hash for Last.fm API authentication.
+        
+        Args:
+            params: The parameters to hash.
+            
+        Returns:
+            The md5 hash of the parameters and API secret.
+        """
+        items = sorted(params.keys())
+        string = ''
+        
+        for item in items:
+            string += item + params[item]
+            
+        string += self.credentials['api_secret']
+        
+        # Create MD5 hash
+        return hashlib.md5(string.encode('utf8')).hexdigest()
+    
+    def scrobble_track(self, artist: str, title: str, timestamp: int) -> bool:
+        """
+        Scrobble a track to Last.fm.
+        
+        Args:
+            artist: The artist name.
+            title: The track title.
+            timestamp: The Unix timestamp when the track started playing.
+            
+        Returns:
+            True if scrobbling was successful, False otherwise.
+        """
+        if not self.has_credentials():
+            logger.warning("Cannot scrobble: Last.fm credentials not set")
+            return False
+            
+        url = "http://ws.audioscrobbler.com/2.0/"
+        
+        params = {
+            "method": "track.scrobble",
+            "api_key": self.credentials['api_key'],
+            "artist": artist,
+            "chosenByUser": "0",
+            "sk": self.credentials['session_key'],
+            "timestamp": str(timestamp),
+            "track": title,
         }
+        
+        req_hash = self.hash_request(params)
+        params["api_sig"] = req_hash
+        
+        try:
+            response = requests.post(url, params=params)
+            response.raise_for_status()
+            
+            logger.info(f"Scrobbled: {artist} - {title}")
+            return True
+        except requests.RequestException as e:
+            logger.error(f"Failed to scrobble track: {e}")
+            return False
+    
+    def get_current_track(self) -> Optional[Dict[str, str]]:
+        """
+        Get the currently playing track from GRRIF.
+        
+        Returns:
+            A dictionary with track information or None if failed.
+        """
+        try:
+            response = requests.get("https://www.grrif.ch/live/covers.json")
+            response.raise_for_status()
+            
+            data = response.json()[3]  # The current track is at index 3
+            
+            return {
+                "artist": titlecase.titlecase(data.get("Artist", "")),
+                "title": titlecase.titlecase(data.get("Title", "")),
+                "time": data.get("Hours", "")
+            }
+        except (requests.RequestException, ValueError, IndexError) as e:
+            logger.error(f"Error getting current track: {e}")
+            return None
+    
+    def start_tracking(self, stop_event: threading.Event) -> None:
+        """
+        Start tracking the currently playing track and scrobble it.
+        
+        Args:
+            stop_event: Event to signal when to stop tracking.
+        """
+        logger.info("Starting track tracking")
+        
+        while not stop_event.is_set():
+            try:
+                track_info = self.get_current_track()
+                
+                if track_info and track_info["time"] != self.last_check_time:
+                    # New track detected
+                    self.current_track = track_info
+                    self.last_check_time = track_info["time"]
+                    
+                    # Log the currently playing track
+                    logger.info(f"Now playing: {track_info['artist']} - {track_info['title']}")
+                    
+                    # Scrobble the track with a timestamp 30 seconds in the past
+                    # This ensures the track is scrobbled correctly
+                    timestamp = int(time.time() - 30)
+                    self.scrobble_track(
+                        track_info["artist"], 
+                        track_info["title"], 
+                        timestamp
+                    )
+            except Exception as e:
+                logger.error(f"Error in track tracking: {e}")
+            
+            # Check for new track after interval
+            for _ in range(self.check_interval):
+                if stop_event.is_set():
+                    break
+                time.sleep(1)
+        
+        logger.info("Track tracking stopped")
 
-    reqhash = hashRequest(params, API_SECRET)
-    params["api_sig"] = reqhash
-
-    response = requests.post(url, params=params)
-
-    if response.status_code == 200:
-        print("Track scrobbled successfully!")
-    else:
-        print("Failed to scrobble track.")
-
-def currently_playing(ctime, stop_event):
+def start_scrobbling(stream_mode: str = "0") -> None:
     """
-    Scrobble while streaming from the console (multi-threading coord)
+    Start standalone scrobbling mode.
+    
+    Args:
+        stream_mode: "0" for standalone mode.
     """
-    while not stop_event.is_set():
-        start_scrobbling(ctime)
+    stop_event = threading.Event()
+    
+    try:
+        scrobbler = TrackScrobbler()
+        
+        if not scrobbler.has_credentials():
+            print("Last.fm credentials not set. Please use 'grrif_tools scrobble settings' first.")
+            return
+            
+        print("Starting scrobbling to Last.fm. Press Ctrl+C to stop.")
+        
+        # Start scrobbling in the main thread
+        scrobbler.start_tracking(stop_event)
+    except KeyboardInterrupt:
+        print("Scrobbling stopped by user.")
+    finally:
+        stop_event.set()
 
-def start_scrobbling(ctime):
-    """
-    Function to get the currently playing track (every 60 seconds).
-    """
-    while True:
-        response = requests.get("https://www.grrif.ch/live/covers.json")
-
-        # Check if the request was successful
-        if response.status_code == 200:
-            ltime = response.json()[3].get("Hours")
-            if ctime == 0 or ctime != ltime:
-                data = response.json()[3]
-                title = titlecase.titlecase(data.get("Title"))
-                artist = titlecase.titlecase(data.get("Artist"))
-                ctime = ltime
-                utctime = int(int(time.time() - 30))
-                print(f"Currently playing {title} by {artist}.")
-                scrobble_track(artist, title, utctime)
-            else:
-                pass
-        else:
-            print("Failed to retrieve data from the URL.")
-
-        time.sleep(60)
+def stop_scrobbling() -> None:
+    """Placeholder for stopping scrobbling in the TUI."""
+    # In the TUI implementation, this will be used to stop scrobbling
+    pass

@@ -1,0 +1,64 @@
+/* CSS for the GRRIF Tools TUI */
+Screen {
+    background: #0f0f0f;
+    color: #ffffff;
+}
+
+#main {
+    width: 100%;
+    height: 100%;
+    padding: 1 2;
+}
+
+#welcome {
+    width: 100%;
+    height: auto;
+    content-align: center middle;
+    text-align: center;
+    margin: 2 0;
+}
+
+#screen-title {
+    text-style: bold;
+    width: 100%;
+    text-align: center;
+    margin: 1 0;
+}
+
+#buttons {
+    width: 100%;
+    height: auto;
+    align: center top;
+    margin: 1 0;
+}
+
+Button {
+    margin: 0 1;
+}
+
+.label {
+    padding: 1 1;
+    width: auto;
+}
+
+Input {
+    width: 30;
+}
+
+.section-title {
+    text-style: bold;
+    margin-top: 1;
+}
+
+.results {
+    height: auto;
+    max-height: 20;
+    overflow: auto;
+    border: solid gray;
+    padding: 1;
+    margin-top: 1;
+}
+
+Footer {
+    background: #2e2e2e;
+}
